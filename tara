@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TARA777 – Official Gaming Platform</title>
+
+<style>
+:root {
+  --primary: #1677ff;
+  --text: #222;
+  --muted: #666;
+  --bg: #f3f6ff;
+}
+
+/* RESET */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: "Poppins", sans-serif;
+  overflow-x: hidden;
+  background: #000; /* 防止闪白 */
+  color: var(--text);
+}
+
+/* =============== FULLSCREEN BACKGROUND VIDEO =============== */
+.video-bg {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -1;
+  background: #000;
+}
+
+.video-bg video {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  transform: translate(-50%, -50%);
+  object-fit: cover;
+}
+
+/* =============== HEADER (透明 + 模糊) =============== */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 99;
+
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+
+header img {
+  height: 36px;
+}
+
+.nav-icons {
+  display: flex;
+  gap: 18px;
+}
+
+.nav-icons img {
+  width: 28px;
+  filter: drop-shadow(0 0 4px rgba(0,0,0,0.7));
+}
+
+/* =============== CONTENT WRAPPER (下滑后才看到内容) =============== */
+.content-wrapper {
+  position: relative;
+  margin-top: 100vh;         /* ⬅ 先看一屏视频，往下滑才看到内容 */
+  padding-top: 40px;
+  padding-bottom: 80px;
+  background: transparent;   /* 透明，可以看到后面的视频 */
+}
+
+/* =============== SECTION 基础样式 =============== */
+section {
+  padding: 60px 18px 40px;
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* 标题更显眼（高亮蓝 + 发光效果） */
+h2 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-bottom: 1.2rem;
+  color: #f5f8ff;
+  text-shadow:
+    0 0 8px rgba(22,119,255,0.7),
+    0 0 16px rgba(0,0,0,0.6);
+}
+
+/* ABOUT 卡片 */
+.about-box {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 14px rgba(0,0,0,.18);
+  text-align: left;
+}
+
+.about-box p {
+  color: #333;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.about-full {
+  display: none;   /* 默认折叠 */
+  margin-top: 10px;
+}
+
+.about-toggle {
+  margin-top: 12px;
+  text-align: center;
+  color: var(--primary);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* =============== GAMES GRID =============== */
+.game-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.6rem;
+}
+
+@media (max-width: 768px) {
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.game-card {
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,.16);
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+
+.game-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 22px rgba(0,0,0,.25);
+}
+
+.game-card img {
+  width: 100%;
+  border-radius: 14px;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+.game-card h3 {
+  margin-top: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #222;
+}
+
+.game-preview {
+  max-height: 2.6rem;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.game-full {
+  display: none;
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 4px;
+}
+
+.game-toggle {
+  margin-top: 8px;
+  color: var(--primary);
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+/* =============== PROMOTIONS SLIDER =============== */
+.promo-loop {
+  overflow: hidden;
+  width: 100%;
+}
+
+.promo-track {
+  display: flex;
+  gap: 14px;
+  padding: 6px;
+  animation: promoScroll 10s linear infinite;
+}
+
+.promo-item {
+  min-width: 70%;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,.16);
+}
+
+.promo-item img {
+  width: 100%;
+  border-radius: 16px;
+  aspect-ratio: 16/7;
+  object-fit: cover;
+}
+
+@keyframes promoScroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* =============== VIP =============== */
+.vip-text {
+  max-width: 750px;
+  margin: 0 auto 18px;
+  line-height: 1.7;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.vip-img {
+  width: 100%;
+  max-width: 700px;
+  display: block;
+  margin: 0 auto;
+}
+
+/* =============== AGENT =============== */
+.agent-card {
+  background: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,.16);
+}
+
+.agent-card img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+
+.agent-card a {
+  display: block;
+  padding: 14px;
+  background: var(--primary);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* =============== FAQ =============== */
+.faq-item {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,.14);
+  text-align: left;
+}
+
+.faq-q {
+  cursor: pointer;
+  font-weight: 600;
+  color: #222;
+}
+
+.faq-a {
+  display: none;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* =============== FOOTER =============== */
+footer {
+  background: #0d1b3a;
+  color: #d6e2ff;
+  padding: 40px 18px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+footer a {
+  color: #ffffff;
+  text-decoration: none;
+  margin: 0 6px;
+  font-size: 0.9rem;
+}
+</style>
+</head>
+
+<body>
+
+<!-- 🔥 全屏背景视频（使用你的 catbox 链接） -->
+<div class="video-bg">
+  <video autoplay muted loop playsinline id="bgVideo">
+    <source src="https://files.catbox.moe/4vp9wi.mp4" type="video/mp4">
+  </video>
+</div>
+
+<!-- HEADER -->
+<header>
+  <img src="/assets/logo.png" alt="TARA777 Logo">
+  <div class="nav-icons">
+    <a href="/"><img src="/assets/icons/home.png" alt="Home"></a>
+    <a href="/games/"><img src="/assets/icons/games.png" alt="Games"></a>
+    <a href="/promotions/"><img src="/assets/icons/promo.png" alt="Promotions"></a>
+    <a href="/vip/"><img src="/assets/icons/vip.png" alt="VIP"></a>
+    <a href="/agents/"><img src="/assets/icons/agent.png" alt="Agents"></a>
+  </div>
+</header>
+
+<!-- 内容从整整一屏视频之后开始 -->
+<div class="content-wrapper">
+<!-- ABOUT -->
+<section>
+  <h2>About TARA777</h2>
+
+  <div class="about-box">
+    <p>
+      TARA777 is a trusted gaming platform offering premium slots, fishing games,
+      and live casino entertainment for Filipino players.
+    </p>
+
+    <!-- FULL CONTENT (折叠) -->
+    <div class="about-full" id="aboutContent">
+      <div style="text-align:left; line-height:1.75; font-size:15px; color:#333;">
+
+        <h2 style="color:#1677ff; font-size:22px; font-weight:700; margin-bottom:12px;">
+          About TARA777
+        </h2>
+
+        <p>
+          <span style="color:#1677ff; font-weight:600;">TARA777</span> is one of the most trusted online gaming 
+          platforms in the Philippines, offering a premium collection of 
+          <span style="color:#d63384; font-weight:600;">slot games</span>,
+          <span style="color:#28a745; font-weight:600;">fishing games</span>,
+          and <span style="color:#ffc107; font-weight:600;">live casino entertainment</span>.
+        </p>
+
+        <p>
+          Built with modern systems, strong security, and smooth user experience,
+          TARA777 provides a fast, secure, and exciting real-money gaming environment
+          optimized for both mobile and desktop players.
+        </p>
+
+        <h3 style="color:#1677ff; margin-top:28px;">💠 Fairness, Security & Stability</h3>
+        <p>
+          We maintain strict fairness and use advanced technology to ensure 
+          all players enjoy a safe and secure gaming experience.
+        </p>
+
+        <ul style="padding-left:20px;">
+          <li>24/7 Customer Support</li>
+          <li>Fast & Secured Withdrawals</li>
+          <li>Anti-Cheat Game Protection</li>
+          <li>Stable Servers & Smooth Gameplay</li>
+        </ul>
+
+        <h3 style="color:#1677ff; margin-top:28px;">💠 Fast Withdrawals</h3>
+        <p>TARA777 ensures quick payout processing with multiple secure deposit options.</p>
+
+        <h3 style="color:#1677ff; margin-top:28px;">💠 Designed for All Players</h3>
+        <p>Simple interface, fast loading, and hundreds of popular games.</p>
+
+        <h3 style="color:#1677ff; margin-top:28px;">💠 Bonuses, VIP Rewards, Events</h3>
+        <ul style="padding-left:20px;">
+          <li>Daily Mystery Bonus</li>
+          <li>Promo Codes</li>
+          <li>Referral Rewards</li>
+          <li>Weekly & Monthly VIP Bonus</li>
+          <li>Cashback & Seasonal Events</li>
+        </ul>
+
+        <p>
+          Climb the VIP ladder and unlock  
+          <span style="color:#ff5733; font-weight:600;">bigger cashback</span>,
+          <span style="color:#ff5733; font-weight:600;">higher limits</span>,
+          and <span style="color:#ff5733; font-weight:600;">exclusive perks</span>.
+        </p>
+
+        <h3 style="color:#1677ff; margin-top:28px;">💠 Trusted by Filipino Players</h3>
+        <p>
+          With thousands of active players daily, TARA777 offers 
+          fast payouts, secure payments, and a world-class platform that 
+          continues to grow stronger every year.
+        </p>
+
+        <p style="margin-top:30px; font-size:17px; font-weight:700; color:#0d6efd;">
+          TARA777 is more than a gaming platform — it's your gateway to premium online entertainment.
+        </p>
+      </div>
+    </div>
+
+    <div class="about-toggle" onclick="toggleAbout()">Read More ▼</div>
+  </div>
+</section>
+
+
+<!-- POPULAR GAMES -->
+<section>
+  <h2>Popular Games</h2>
+
+  <div class="game-grid">
+
+    <div class="game-card">
+      <a href="#"><img src="/assets/games/starlight.gif"></a>
+      <h3>Starlight Princess</h3>
+      <p class="game-preview">Magical multipliers...</p>
+      <p class="game-full">High volatility slot with celestial visuals and tumbling wins.</p>
+      <div class="game-toggle" onclick="toggleDesc(this)">Read More ▼</div>
+    </div>
+
+    <div class="game-card">
+      <a href="#"><img src="/assets/games/olympus.gif"></a>
+      <h3>Gates of Olympus</h3>
+      <p class="game-preview">Zeus multipliers...</p>
+      <p class="game-full">Explosive multipliers with tumble mechanics.</p>
+      <div class="game-toggle" onclick="toggleDesc(this)">Read More ▼</div>
+    </div>
+
+    <div class="game-card">
+      <a href="#"><img src="/assets/games/sweet.gif"></a>
+      <h3>Sweet Bonanza</h3>
+      <p class="game-preview">Candy multipliers...</p>
+      <p class="game-full">Fruit explosions and bonus free spins.</p>
+      <div class="game-toggle" onclick="toggleDesc(this)">Read More ▼</div>
+    </div>
+
+    <div class="game-card">
+      <a href="#"><img src="/assets/games/tiger.gif"></a>
+      <h3>Fortune Tiger</h3>
+      <p class="game-preview">Lucky respins...</p>
+      <p class="game-full">Fast-paced respins with high hit frequency.</p>
+      <div class="game-toggle" onclick="toggleDesc(this)">Read More ▼</div>
+    </div>
+
+    <div class="game-card">
+      <a href="#"><img src="/assets/games/bounty.gif"></a>
+      <h3>Wild Bounty</h3>
+      <p class="game-preview">Wild West wins...</p>
+      <p class="game-full">Expanding wilds and cinematic scenes.</p>
+      <div class="game-toggle" onclick="toggleDesc(this)">Read More ▼</div>
+    </div>
+
+    <div class="game-card">
+      <a href="#"><img src="/assets/games/crazy.gif"></a>
+      <h3>Crazy 777</h3>
+      <p class="game-preview">Classic style...</p>
+      <p class="game-full">Simple 777 gameplay with modern animations.</p>
+      <div class="game-toggle" onclick="toggleDesc(this)">Read More ▼</div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- PROMOTIONS -->
+<section>
+  <h2>Promotions</h2>
+
+  <div class="promo-loop">
+    <div class="promo-track">
+      <a class="promo-item" href="#"><img src="/assets/promos/promo1.jpg"></a>
+      <a class="promo-item" href="#"><img src="/assets/promos/promo2.jpg"></a>
+      <a class="promo-item" href="#"><img src="/assets/promos/promo3.jpg"></a>
+      <a class="promo-item" href="#"><img src="/assets/promos/promo1.jpg"></a>
+      <a class="promo-item" href="#"><img src="/assets/promos/promo2.jpg"></a>
+      <a class="promo-item" href="#"><img src="/assets/promos/promo3.jpg"></a>
+    </div>
+  </div>
+</section>
+
+
+<!-- VIP -->
+<section>
+  <h2>VIP Program</h2>
+  <p class="vip-text">
+    Our VIP Program rewards loyal players with higher cashback, faster withdrawal speed,
+    exclusive events, seasonal bonuses, and priority support.
+  </p>
+  <img src="/assets/vip/vip-transparent.png" class="vip-img">
+</section>
+
+
+<!-- BECOME AN AGENT -->
+<section>
+  <h2>Become an Agent</h2>
+
+  <div class="agent-card">
+    <img src="/assets/agents/agent.jpg">
+    <a href="#">Join Now</a>
+  </div>
+</section>
+<!-- FAQ -->
+<section>
+  <h2>FAQ</h2>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">How do I register?</div>
+    <div class="faq-a">Click the Register button and fill in your mobile number and password.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">Is TARA777 safe?</div>
+    <div class="faq-a">Yes. We use advanced encryption, secure systems, and verified game providers.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">How fast are withdrawals?</div>
+    <div class="faq-a">Withdrawals are processed quickly, usually within minutes.</div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q" onclick="toggleFAQ(this)">Do you offer bonuses?</div>
+    <div class="faq-a">Yes! Daily Mystery Bonus, VIP rewards, referral income, and event bonuses.</div>
+  </div>
+
+</section>
+
+
+<!-- FOOTER -->
+<footer>
+  <a href="#">About</a> ·
+  <a href="#">Contact</a> ·
+  <a href="#">Terms</a> ·
+  <a href="#">Privacy</a>
+  <div style="margin-top:14px;">© 2025 TARA777 – All Rights Reserved.</div>
+</footer>
+
+
+<!-- 🔥 FINAL SCRIPTS (Autoplay Unlock + Toggles) -->
+<script>
+
+// ABOUT TOGGLE
+function toggleAbout(){
+  const full = document.getElementById("aboutContent");
+  const btn = document.querySelector(".about-toggle");
+
+  let open = full.style.display === "block";
+  full.style.display = open ? "none" : "block";
+  btn.innerText = open ? "Read More ▼" : "Read Less ▲";
+}
+
+// GAME DESCRIPTION TOGGLE
+function toggleDesc(btn){
+  let full = btn.previousElementSibling;
+  let preview = full.previousElementSibling;
+
+  let open = full.style.display === "block";
+  full.style.display = open ? "none" : "block";
+  preview.style.maxHeight = open ? "2.6rem" : "0";
+  btn.innerText = open ? "Read More ▼" : "Read Less ▲";
+}
+
+// FAQ TOGGLE
+function toggleFAQ(q){
+  let a = q.nextElementSibling;
+  a.style.display = a.style.display === "block" ? "none" : "block";
+}
+
+
+// ===============================
+// 🔓 TRUE AUTOPLAY UNLOCK (works everywhere)
+// ===============================
+
+// 0.01s MP4 Base64 (browser allows autoplay)
+const tinyVideoSrc =
+"data:video/mp4;base64,AAAAHGZ0eXBtcDQyAAAAAG1wNDFtcDQyaXNvbWF2YzEAAAAIZnJlZQAAACRtZGF0AAAAAQAAAABMYXZmNTUuMzMuMTAw";
+
+/*
+理由：
+iOS、Android、Chrome、Safari 都不允许页面一加载就播放外部视频。
+但是允许播放【短于0.1秒且静音的内嵌视频】，
+一旦它播放成功，就可以解锁所有视频的 autoplay 权限。
+*/
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  // 创建隐藏的解锁视频
+  const unlockVideo = document.createElement("video");
+  unlockVideo.src = tinyVideoSrc;
+  unlockVideo.muted = true;
+  unlockVideo.playsInline = true;
+  unlockVideo.autoplay = true;
+  unlockVideo.style.cssText = "width:0;height:0;opacity:0;position:absolute;z-index:-1;";
+  document.body.appendChild(unlockVideo);
+
+  const bg = document.getElementById("bgVideo");
+
+  // 尝试播放背景视频
+  function tryPlay() {
+    bg.play().catch(() => {
+      setTimeout(tryPlay, 300);
+    });
+  }
+
+  // 首次播放 unlockVideo，再播放 bgVideo
+  unlockVideo.play()
+    .then(() => {
+      tryPlay();
+    })
+    .catch(() => {
+      // 若失败，持续尝试
+      const intv = setInterval(() => {
+        unlockVideo.play().then(() => {
+          clearInterval(intv);
+          tryPlay();
+        }).catch(()=>{});
+      }, 400);
+    });
+
+});
+
+
+</script>
+
+</body>
+</html>
